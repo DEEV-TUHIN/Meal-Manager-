@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="bn" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bachelor Mess Management System</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co.com/Ld91t8Sj/Chat-GPT-Image-Jul-15-2026-05-11-56-PM-removebg-preview.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Hind Siliguri', 'sans-serif'] },
+                    colors: { primary: '#6366f1', secondary: '#0ea5e9' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* ================= CRITICAL: BLOGGER HIDER ================= */
+        #navbar-iframe, .navbar, .search-box, .search-form, #search-box, 
+        .search-wrapper, #header-wrapper, #sidebar-wrapper, .blog-pager, 
+        .feed-links, .comments, .footer-wrapper, .quickedit, .widget-item { 
+            display: none !important; height: 0 !important; visibility: hidden !important; opacity: 0 !important;
+        }
+        
+        /* Glassmorphism Classes */
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
+        .dark .glass-card { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        
+        .modal-animate { animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        
+        .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+        
+        /* hide arrows for number input */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased pb-24 sm:pb-6 transition-colors duration-300">
+
+    <!-- Modern Compact Header -->
+    <header class="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-40 transition-colors duration-300 border-b border-slate-200 dark:border-slate-700">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2 flex justify-between items-center">
+            
+            <!-- Left Side: Logo, Name & Manager Info -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <img id="messLogoDisplay" src="https://i.ibb.co.com/Ld91t8Sj/Chat-GPT-Image-Jul-15-2026-05-11-56-PM-removebg-preview.png" class="h-10 w-10 sm:h-11 sm:w-11 object-cover rounded-full border-2 border-indigo-500 shadow-sm" alt="Logo">
+                <div class="flex flex-col">
+                    <h1 class="text-base sm:text-lg font-bold tracking-wide text-indigo-700 dark:text-indigo-400 leading-tight">আমাদের মেস</h1>
+                    <div class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <img id="displayManagerPhoto" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="h-4 w-4 rounded-full object-cover border border-slate-300 dark:border-slate-600" alt="Mgr">
+                        <span class="flex flex-col sm:flex-row sm:gap-1.5">
+                            <span><b id="displayManagerName" class="text-slate-700 dark:text-slate-300">নির্ধারিত নয়</b></span>
+                            <span class="hidden sm:inline">|</span>
+                            <span><b id="displayManagerPhone" class="text-slate-700 dark:text-slate-300">---</b></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Theme, Notification, Login -->
+            <div class="flex items-center gap-1.5 sm:gap-3 ml-auto">
+                <button onclick="toggleTheme()" class="p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-amber-400 flex items-center justify-center">
+                    <i id="themeIcon" class="fa-solid fa-moon text-sm sm:text-lg"></i>
+                </button>
+
+                <!-- Beautiful Notification Button -->
+                <button onclick="openModal('noticeModal')" class="relative p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-bell text-sm sm:text-lg"></i>
+                    <span id="bellIndicator" class="hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
+                </button>
+
+                <!-- Manager Login Button -->
+                <button onclick="handleAuthClick()" id="adminBtn" class="ml-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold shadow-md transition active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-lock text-[10px] sm:text-xs"></i> <span>লগইন</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-3 sm:p-4 mt-2 sm:mt-3">
+
+        <!-- Universal Tab Navigation (Desktop Only) -->
+        <div class="hidden sm:flex space-x-2 bg-slate-200/60 dark:bg-slate-800/60 p-1.5 rounded-2xl shadow-inner mb-6 max-w-2xl mx-auto">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="flex-1 py-2.5 px-3 rounded-xl font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition-all tab-btn text-xs sm:text-sm whitespace-nowrap">
+                <i class="fa-solid fa-chart-line mr-1.5"></i> ড্যাশবোর্ড
+            </button>
+            <button onclick="switchTab('expenses')" id="tab-expenses" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700 transition-all tab-btn text-xs sm:text-sm whitespace-nowrap">
+                <i class="fa-solid fa-wallet mr-1.5"></i> খরচ
+            </button>
+            <button onclick="switchTab('members')" id="tab-members" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700 transition-all tab-btn text-xs sm:text-sm whitespace-nowrap">
+                <i class="fa-solid fa-user-group mr-1.5"></i> সদস্য
+            </button>
+            <button onclick="switchTab('meals')" id="tab-meals" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700 transition-all tab-btn text-xs sm:text-sm whitespace-nowrap">
+                <i class="fa-solid fa-utensils mr-1.5"></i> মিল হিসাব
+            </button>
+        </div>
+
+        <!-- ================= DASHBOARD PAGE ================= -->
+        <div id="page-dashboard" class="page-content block space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div class="glass-card p-5 rounded-2xl sm:rounded-3xl shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="absolute -right-2 -bottom-2 text-red-100 dark:text-red-900/30 group-hover:scale-110 transition-transform"><i class="fa-solid fa-money-bill-wave text-6xl sm:text-7xl"></i></div>
+                    <p class="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider">মোট খরচ</p>
+                    <h3 class="text-2xl font-black text-red-500 mt-2">৳ <span id="dash-expense">0</span></h3>
+                </div>
+                <div class="glass-card p-5 rounded-2xl sm:rounded-3xl shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="absolute -right-2 -bottom-2 text-emerald-100 dark:text-emerald-900/30 group-hover:scale-110 transition-transform"><i class="fa-solid fa-piggy-bank text-6xl sm:text-7xl"></i></div>
+                    <p class="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider">মোট জমা</p>
+                    <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">৳ <span id="dash-deposit">0</span></h3>
+                </div>
+                <div class="glass-card p-5 rounded-2xl sm:rounded-3xl shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="absolute -right-2 -bottom-2 text-indigo-100 dark:text-indigo-900/30 group-hover:scale-110 transition-transform"><i class="fa-solid fa-users text-6xl sm:text-7xl"></i></div>
+                    <p class="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider">মোট সদস্য</p>
+                    <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-2"><span id="dash-members">0</span> জন</h3>
+                </div>
+                <div class="glass-card p-5 rounded-2xl sm:rounded-3xl shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div class="absolute -right-2 -bottom-2 text-amber-100 dark:text-amber-900/30 group-hover:scale-110 transition-transform"><i class="fa-solid fa-scale-balanced text-6xl sm:text-7xl"></i></div>
+                    <p class="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider">গড় খরচ (পার হেড)</p>
+                    <h3 class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">৳ <span id="dash-perhead">0</span></h3>
+                </div>
+            </div>
+
+            <div class="admin-only hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 dark:border-slate-700 pb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-sm sm:text-base"><i class="fa-solid fa-sliders mr-1.5"></i> অ্যাডমিন সেটিংস</h4>
+                    </div>
+                    <button onclick="clearAllData()" class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold hover:bg-red-100 transition flex items-center justify-center gap-1 w-full sm:w-auto">
+                        <i class="fa-solid fa-trash-can"></i> মাস শেষে রিসেট
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">মেস লোগো URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="adminLogoUrl" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700 dark:text-white outline-none">
+                            <button onclick="updateSettings('logoUrl', 'adminLogoUrl')" class="bg-indigo-600 text-white px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold">সেট</button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">ম্যানেজার ছবি URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="adminManagerPhoto" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700 dark:text-white outline-none">
+                            <button onclick="updateSettings('managerPhoto', 'adminManagerPhoto')" class="bg-purple-600 text-white px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold">সেট</button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">ম্যানেজারের নাম</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="adminManagerName" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700 dark:text-white outline-none">
+                            <button onclick="updateSettings('managerName', 'adminManagerName')" class="bg-emerald-600 text-white px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold">সেট</button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">ম্যানেজারের ফোন</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="adminManagerPhone" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm bg-slate-50 dark:bg-slate-700 dark:text-white outline-none">
+                            <button onclick="updateSettings('managerPhone', 'adminManagerPhone')" class="bg-blue-600 text-white px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold">সেট</button>
+                        </div>
+                    </div>
+                    <div class="space-y-1 md:col-span-2">
+                        <label class="block text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider">নোটিশ জারী (সবার স্ক্রিনে দেখাবে)</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="adminNotification" class="w-full border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-sm bg-slate-50 dark:bg-slate-700 dark:text-white outline-none">
+                            <button onclick="updateSettings('notification', 'adminNotification')" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap shadow-md transition">নোটিশ দিন</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= EXPENSES PAGE (MOBILE CARD LAYOUT) ================= -->
+        <div id="page-expenses" class="page-content hidden space-y-3 sm:space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-base sm:text-lg font-bold"><i class="fa-solid fa-receipt text-red-500 mr-2"></i>বাজার ও অন্যান্য খরচ</h2>
+                <button onclick="openModal('expenseModal')" class="admin-only hidden bg-indigo-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-[10px] sm:text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> খরচ যোগ
+                </button>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden w-full">
+                <!-- Desktop Header -->
+                <div class="hidden sm:grid grid-cols-4 gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-300 text-xs font-bold uppercase tracking-wider">
+                    <div>তারিখ</div>
+                    <div>খাত</div>
+                    <div>বিবরণ</div>
+                    <div class="text-right">টাকা</div>
+                </div>
+                <!-- Body Array Injection -->
+                <div id="expenseTableBody" class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700"></div>
+                <div id="emptyExpense" class="hidden p-12 text-center text-slate-400">
+                    <i class="fa-solid fa-box-open text-4xl mb-3 text-slate-300"></i>
+                    <p class="text-sm font-semibold">কোনো খরচ এন্ট্রি দেওয়া হয়নি!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MEMBERS PAGE (MOBILE CARD LAYOUT) ================= -->
+        <div id="page-members" class="page-content hidden space-y-3 sm:space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-base sm:text-lg font-bold"><i class="fa-solid fa-users-viewfinder text-emerald-500 mr-2"></i>সদস্য ও ফান্ড লিস্ট</h2>
+                <button onclick="openModal('memberModal')" class="admin-only hidden bg-indigo-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-[10px] sm:text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-user-plus"></i> ফান্ড জমা
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden w-full">
+                <!-- Desktop Header -->
+                <div class="hidden sm:grid grid-cols-12 gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-300 text-xs font-bold uppercase tracking-wider">
+                    <div class="col-span-5">সদস্যের নাম</div>
+                    <div class="col-span-3 text-center">মোট জমা</div>
+                    <div class="col-span-3 text-right">অবস্থা</div>
+                    <div class="col-span-1 text-center admin-only hidden">অ্যাকশন</div>
+                </div>
+                <!-- Body Array Injection -->
+                <div id="memberTableBody" class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700"></div>
+                <div id="emptyMember" class="hidden p-12 text-center text-slate-400">
+                    <i class="fa-solid fa-user-slash text-4xl mb-3 text-slate-300"></i>
+                    <p class="text-sm font-semibold">এখনও কোনো সদস্য যুক্ত করা হয়নি!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MEALS TRACKER (MOBILE CARD LAYOUT) ================= -->
+        <div id="page-meals" class="page-content hidden space-y-3 sm:space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h2 class="text-base sm:text-lg font-bold"><i class="fa-solid fa-utensils text-orange-500 mr-2"></i>দৈনিক মিল হিসাব</h2>
+                
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <input type="date" id="mealDateFilter" onchange="renderMealTable()" class="border border-slate-200 dark:border-slate-600 rounded-xl p-2 sm:p-2.5 text-xs sm:text-sm bg-white dark:bg-slate-700 dark:text-white outline-none font-bold w-full sm:w-auto">
+                    <div class="admin-only hidden flex gap-1 w-full sm:w-auto">
+                        <input type="number" id="mealRateInput" placeholder="রেট ৳" class="w-full sm:w-24 border border-slate-200 dark:border-slate-600 rounded-xl p-2 sm:p-2.5 text-xs sm:text-sm bg-white dark:bg-slate-700 dark:text-white outline-none text-center">
+                        <button onclick="saveMealRate()" class="bg-indigo-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-md">সেভ রেট</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden w-full">
+                <!-- Desktop Header -->
+                <div class="hidden sm:grid grid-cols-12 gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-300 text-xs font-bold uppercase tracking-wider text-center">
+                    <div class="col-span-3 text-left">সদস্যের নাম</div>
+                    <div class="col-span-2"><i class="fa-solid fa-mug-hot text-amber-500 mr-1"></i> সকাল</div>
+                    <div class="col-span-2"><i class="fa-solid fa-bowl-rice text-indigo-500 mr-1"></i> দুপুর</div>
+                    <div class="col-span-2"><i class="fa-solid fa-moon text-blue-500 mr-1"></i> রাত</div>
+                    <div class="col-span-3 text-right">মোট</div>
+                </div>
+                <!-- Body Array Injection -->
+                <div id="mealTableBody" class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700"></div>
+                <div class="p-4 sm:p-5 text-right admin-only hidden border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                    <button onclick="saveMealsForDate()" class="w-full sm:w-auto bg-green-600 text-white px-6 py-3 sm:py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-green-700 transition">এই তারিখের মিল সেভ করুন</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Mobile App-like Bottom Navigation -->
+    <nav class="sm:hidden fixed bottom-0 left-0 w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 flex justify-around p-1.5 z-40 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('dashboard')" id="mob-dashboard" class="mob-btn flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 p-1.5 w-1/4 transition-transform active:scale-95">
+            <i class="fa-solid fa-chart-line text-[20px] mb-1"></i>
+            <span class="text-[10px] font-bold">ড্যাশবোর্ড</span>
+        </button>
+        <button onclick="switchTab('expenses')" id="mob-expenses" class="mob-btn flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 p-1.5 w-1/4 transition-transform active:scale-95">
+            <i class="fa-solid fa-wallet text-[20px] mb-1"></i>
+            <span class="text-[10px] font-bold">খরচ</span>
+        </button>
+        <button onclick="switchTab('members')" id="mob-members" class="mob-btn flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 p-1.5 w-1/4 transition-transform active:scale-95">
+            <i class="fa-solid fa-user-group text-[20px] mb-1"></i>
+            <span class="text-[10px] font-bold">সদস্য</span>
+        </button>
+        <button onclick="switchTab('meals')" id="mob-meals" class="mob-btn flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 p-1.5 w-1/4 transition-transform active:scale-95">
+            <i class="fa-solid fa-utensils text-[20px] mb-1"></i>
+            <span class="text-[10px] font-bold">হিসাব</span>
+        </button>
+    </nav>
+
+    <!-- ================= BEAUTIFUL MODALS (POP-UPS) ================= -->
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden modal-animate border border-slate-100 dark:border-slate-700">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner border border-indigo-100 dark:border-slate-700">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">অ্যাডমিন প্যানেল লগইন</h3>
+                <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mb-5">ম্যানেজার হিসেবে প্রবেশ করতে পাসওয়ার্ড দিন</p>
+                
+                <input type="password" id="loginPassword" placeholder="পাসওয়ার্ড লিখুন..." class="w-full border border-slate-200 dark:border-slate-600 rounded-xl p-3.5 text-center text-lg tracking-widest bg-slate-50 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 mb-5 font-bold shadow-inner">
+                <p id="loginErrorMsg" class="hidden text-red-500 text-xs font-bold mb-3 -mt-2">ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।</p>
+                
+                <div class="flex gap-3">
+                    <button onclick="closeModal('loginModal')" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-3.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition text-sm">বাতিল</button>
+                    <button onclick="verifyLogin()" class="flex-1 bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 shadow-md transition text-sm">প্রবেশ করুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notice Display Modal -->
+    <div id="noticeModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden modal-animate border border-slate-100 dark:border-slate-700 relative">
+            <button onclick="closeModal('noticeModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-amber-50 dark:bg-amber-900/30 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner border border-amber-100 dark:border-slate-700">
+                    <i class="fa-solid fa-bullhorn animate-bounce mt-1"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-800 dark:text-white mb-4">মেস নোটিশ বোর্ড</h3>
+                
+                <div class="bg-amber-50 dark:bg-slate-700/50 border border-amber-100 dark:border-slate-600 rounded-2xl p-5 text-sm sm:text-base font-medium text-slate-700 dark:text-slate-200 text-center leading-relaxed" id="noticeContentText">
+                    <!-- Text injected by JS -->
+                </div>
+                
+                <button onclick="closeModal('noticeModal')" class="w-full bg-slate-800 dark:bg-slate-700 text-white font-bold py-3.5 rounded-xl hover:bg-slate-700 transition mt-5 text-sm">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Add Expense) -->
+    <div id="expenseModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-animate border border-slate-100 dark:border-slate-700">
+            <div class="bg-red-500 text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-sm sm:text-base flex items-center gap-2"><i class="fa-solid fa-cart-plus"></i> নতুন খরচ যোগ</h3>
+                <button onclick="closeModal('expenseModal')" class="text-white hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveExpense(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">তারিখ</label>
+                    <input type="date" id="exDate" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">খাত (ক্যাটাগরি)</label>
+                    <select id="exCategory" class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                        <option value="Market">🛒 বাজার খরচ</option>
+                        <option value="Wifi">🌐 ওয়াইফাই বিল</option>
+                        <option value="Electricity">⚡ বিদ্যুৎ বিল</option>
+                        <option value="Others">📦 অন্যান্য</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">বিস্তারিত বিবরণ</label>
+                    <input type="text" id="exTitle" placeholder="কীসের খরচ?" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">পরিমাণ (৳)</label>
+                    <input type="number" id="exAmount" placeholder="0" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none font-bold text-lg focus:ring-2 focus:ring-red-400">
+                </div>
+                <button type="submit" class="w-full bg-red-500 text-white font-bold py-3.5 rounded-xl hover:shadow-lg mt-2 text-sm transition">সেভ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals (Add/Edit Member) -->
+    <div id="memberModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-animate border border-slate-100 dark:border-slate-700">
+            <div class="bg-emerald-500 text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 class="font-bold text-sm sm:text-base flex items-center gap-2" id="memberModalTitle"><i class="fa-solid fa-user-plus"></i> ফান্ড এন্ট্রি</h3>
+                <button onclick="closeModal('memberModal')" class="text-white hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveMemberAction(event)" class="p-5 space-y-4">
+                <input type="hidden" id="editMemberId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">সদস্যের নাম</label>
+                    <input type="text" id="memName" placeholder="নাম লিখুন" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">ছবির URL (ঐচ্ছিক)</label>
+                    <input type="url" id="memPhoto" placeholder="https://..." class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">অ্যাকশন</label>
+                    <select id="memActionType" class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none font-bold focus:ring-2 focus:ring-emerald-400">
+                        <option value="add_new">নতুন সদস্য যোগ (প্রাথমিক জমা)</option>
+                        <option value="deposit">বিদ্যমান সদস্যের ফান্ড বৃদ্ধি (+)</option>
+                        <option value="withdraw">বিদ্যমান সদস্যের ফান্ড কমানো (-)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">টাকার পরিমাণ (৳)</label>
+                    <input type="number" id="memAmount" required value="0" class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none font-bold text-lg focus:ring-2 focus:ring-emerald-400">
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-3.5 rounded-xl hover:shadow-lg mt-2 text-sm transition">সংরক্ষণ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        // ========================================================
+        // 🔐 FIREBASE CONFIGURATION (API Keys)
+        // ========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAReXz3Y0pm6vdFidM9aYD8TtIH_xmA0Zc",
+            authDomain: "meal-manager-78af8.firebaseapp.com",
+            databaseURL: "https://meal-manager-78af8-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "meal-manager-78af8",
+            storageBucket: "meal-manager-78af8.firebasestorage.app",
+            messagingSenderId: "839945633491",
+            appId: "1:839945633491:web:76888b9ccd143206cc9e26"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const LOGOUT_PASSWORD = "123"; 
+
+        let state = {
+            isAdmin: false,
+            expenses: [],
+            members: [],
+            meals: {},
+            mealRate: 0,
+            settings: {
+                logoUrl: "https://i.ibb.co.com/Ld91t8Sj/Chat-GPT-Image-Jul-15-2026-05-11-56-PM-removebg-preview.png",
+                notification: "",
+                managerName: "নির্ধারিত নয়",
+                managerPhone: "---",
+                managerPhoto: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            }
+        };
+
+        document.getElementById('mealDateFilter').valueAsDate = new Date();
+        document.getElementById('exDate').valueAsDate = new Date();
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            let isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            let icon = document.getElementById('themeIcon');
+            if(isDark) icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+
+        db.ref('mess_v3_data').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                state.expenses = data.expenses || [];
+                state.members = data.members || [];
+                state.meals = data.meals || {};
+                state.mealRate = data.mealRate || 0;
+                if(data.settings) {
+                    state.settings = data.settings;
+                    if(!state.settings.managerPhoto) state.settings.managerPhoto = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+                }
+                updateUI();
+            }
+        });
+
+        function saveToFirebase() {
+            db.ref('mess_v3_data').set({
+                expenses: state.expenses, members: state.members, meals: state.meals, mealRate: state.mealRate, settings: state.settings
+            });
+        }
+
+        // --- NEW MODAL BASED LOGIN LOGIC ---
+        function handleAuthClick() {
+            if(state.isAdmin) {
+                // Logout Action
+                state.isAdmin = false;
+                document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock text-xs"></i> <span>লগইন</span>';
+                document.getElementById('adminBtn').classList.replace('bg-rose-600', 'bg-indigo-600');
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                updateUI(); // refresh visuals
+            } else {
+                // Open Login Modal
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginErrorMsg').classList.add('hidden');
+                openModal('loginModal');
+            }
+        }
+
+        function verifyLogin() {
+            let pass = document.getElementById('loginPassword').value;
+            if(pass === LOGOUT_PASSWORD) {
+                state.isAdmin = true;
+                closeModal('loginModal');
+                document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock-open text-xs"></i> <span>লগআউট</span>';
+                document.getElementById('adminBtn').classList.replace('bg-indigo-600', 'bg-rose-600');
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                updateUI(); // refresh visuals
+            } else {
+                document.getElementById('loginErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('page-' + id).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700 transition-all tab-btn text-xs sm:text-sm whitespace-nowrap';
+            });
+            document.getElementById('tab-' + id).className = 'flex-1 py-2.5 px-3 rounded-xl font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm transition-all tab-btn text-xs sm:text-sm whitespace-nowrap';
+
+            document.querySelectorAll('.mob-btn').forEach(btn => {
+                btn.className = 'mob-btn flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 p-1.5 w-1/4 transition-transform active:scale-95';
+            });
+            document.getElementById('mob-' + id).className = 'mob-btn flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 p-1.5 w-1/4 transition-transform active:scale-95';
+        }
+
+        function updateUI() {
+            document.getElementById('messLogoDisplay').src = state.settings.logoUrl;
+            document.getElementById('displayManagerPhoto').src = state.settings.managerPhoto;
+            document.getElementById('displayManagerName').innerText = state.settings.managerName || "নির্ধারিত নয়";
+            document.getElementById('displayManagerPhone').innerText = state.settings.managerPhone || "---";
+            
+            if(state.settings.notification) document.getElementById('bellIndicator').classList.remove('hidden');
+            else document.getElementById('bellIndicator').classList.add('hidden');
+
+            if(state.isAdmin) {
+                document.getElementById('adminLogoUrl').value = state.settings.logoUrl;
+                document.getElementById('adminManagerPhoto').value = state.settings.managerPhoto;
+                document.getElementById('adminNotification').value = state.settings.notification;
+                document.getElementById('adminManagerName').value = state.settings.managerName;
+                document.getElementById('adminManagerPhone').value = state.settings.managerPhone;
+                document.getElementById('mealRateInput').value = state.mealRate;
+            }
+
+            const totalExp = state.expenses.reduce((s, e) => s + e.amount, 0);
+            const totalDep = state.members.reduce((s, m) => s + m.deposit, 0);
+            const count = state.members.length;
+            const perHead = state.mealRate > 0 ? state.mealRate : (count > 0 ? (totalExp / count) : 0);
+
+            document.getElementById('dash-expense').innerText = totalExp.toLocaleString();
+            document.getElementById('dash-deposit').innerText = totalDep.toLocaleString();
+            document.getElementById('dash-members').innerText = count;
+            document.getElementById('dash-perhead').innerText = perHead.toFixed(2);
+
+            // --- EXPENSE LIST RENDER ---
+            const exBody = document.getElementById('expenseTableBody');
+            if(state.expenses.length === 0) {
+                exBody.innerHTML = ''; document.getElementById('emptyExpense').classList.remove('hidden');
+            } else {
+                document.getElementById('emptyExpense').classList.add('hidden');
+                exBody.innerHTML = [...state.expenses].reverse().map(exp => `
+                    <div class="flex flex-col sm:grid sm:grid-cols-4 sm:gap-4 p-4 sm:items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition duration-200">
+                        <div class="flex justify-between items-center sm:block mb-2 sm:mb-0">
+                            <span class="text-[11px] sm:text-sm font-bold text-slate-500 dark:text-slate-400 sm:text-slate-800 sm:dark:text-slate-200">${formatDate(exp.date)}</span>
+                            <span class="sm:hidden font-black text-red-500 text-lg">৳ ${exp.amount.toLocaleString()}</span>
+                        </div>
+                        <div class="mb-2 sm:mb-0">
+                            <span class="px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded border ${getCatBadgeClass(exp.category)}">${getCatBangla(exp.category)}</span>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            ${exp.title}
+                        </div>
+                        <div class="hidden sm:block text-right font-black text-red-500 text-base">
+                            ৳ ${exp.amount.toLocaleString()}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderMembers(totalExp, perHead);
+            renderMealTable();
+        }
+
+        // --- MEMBER LIST RENDER (MOBILE NO-SCROLL CARDS) ---
+        function renderMembers(totalExp, perHead) {
+            const memBody = document.getElementById('memberTableBody');
+            if(state.members.length === 0) {
+                memBody.innerHTML = ''; document.getElementById('emptyMember').classList.remove('hidden');
+            } else {
+                document.getElementById('emptyMember').classList.add('hidden');
+                memBody.innerHTML = state.members.map(mem => {
+                    const totalMealsForMember = calculateTotalMeals(mem.id);
+                    const perHeadCost = state.mealRate > 0 ? (totalMealsForMember * state.mealRate) : perHead;
+                    const diff = mem.deposit - perHeadCost;
+                    
+                    let statusHtml = diff >= 0 
+                        ? `<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-arrow-up mr-1 text-[9px]"></i>পাওনা: ৳ ${diff.toFixed(2)}</span>`
+                        : `<span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 sm:py-1.5 rounded text-[11px] sm:text-xs font-bold whitespace-nowrap"><i class="fa-solid fa-arrow-down mr-1 text-[9px]"></i>বাকি: ৳ ${Math.abs(diff).toFixed(2)}</span>`;
+
+                    let photoHtml = mem.photo ? `<img src="${mem.photo}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover mr-3 border border-indigo-200 shrink-0">` : `<div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 flex items-center justify-center mr-3 font-bold text-sm shrink-0">${mem.name.charAt(0)}</div>`;
+
+                    let actionHtml = state.isAdmin ? `
+                        <div class="flex sm:justify-center gap-2 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-none border-slate-100 dark:border-slate-700">
+                            <button onclick="editMember('${mem.id}')" class="text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 p-2 rounded-full flex-1 sm:flex-none border border-blue-100 dark:border-slate-600 sm:border-none flex justify-center items-center transition"><i class="fa-solid fa-pen-to-square"></i> <span class="sm:hidden ml-1.5 text-xs font-bold">এডিট</span></button>
+                            <button onclick="deleteMember('${mem.id}')" class="text-red-500 hover:bg-red-50 dark:hover:bg-slate-700 p-2 rounded-full flex-1 sm:flex-none border border-red-100 dark:border-slate-600 sm:border-none flex justify-center items-center transition"><i class="fa-solid fa-trash-can"></i> <span class="sm:hidden ml-1.5 text-xs font-bold">ডিলিট</span></button>
+                        </div>
+                    ` : ``;
+
+                    return `
+                    <div class="flex flex-col sm:grid sm:grid-cols-12 sm:gap-4 p-4 sm:items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition duration-200">
+                        <div class="col-span-5 flex items-center justify-between sm:justify-start mb-3 sm:mb-0">
+                            <div class="flex items-center">
+                                ${photoHtml}
+                                <span class="font-bold text-[15px] text-slate-800 dark:text-slate-200">${mem.name}</span>
+                            </div>
+                            <div class="sm:hidden text-right">
+                                ${statusHtml}
+                            </div>
+                        </div>
+                        <div class="col-span-3 text-sm font-medium text-slate-600 dark:text-slate-400 sm:text-center sm:font-bold sm:text-slate-800 sm:dark:text-slate-200 mb-1 sm:mb-0 flex justify-between sm:block bg-slate-50 dark:bg-slate-700/30 sm:bg-transparent sm:dark:bg-transparent p-2 sm:p-0 rounded-lg">
+                            <span class="sm:hidden text-xs">মোট জমা:</span> 
+                            <span class="text-base sm:text-sm">৳ ${mem.deposit.toLocaleString()}</span>
+                        </div>
+                        <div class="col-span-3 hidden sm:block text-right">
+                            ${statusHtml}
+                        </div>
+                        <div class="col-span-1 admin-only ${state.isAdmin ? '' : 'hidden'}">
+                            ${actionHtml}
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function calculateTotalMeals(memberId) {
+            let sum = 0;
+            for(let date in state.meals) {
+                if(state.meals[date][memberId]) {
+                    sum += (state.meals[date][memberId].b || 0) + (state.meals[date][memberId].l || 0) + (state.meals[date][memberId].d || 0);
+                }
+            }
+            return sum;
+        }
+
+        // --- MEAL LIST RENDER (MOBILE NO-SCROLL CARDS) ---
+        function renderMealTable() {
+            const date = document.getElementById('mealDateFilter').value;
+            const tbody = document.getElementById('mealTableBody');
+            
+            if(!state.meals[date]) state.meals[date] = {}; 
+            
+            tbody.innerHTML = state.members.map(mem => {
+                let m = state.meals[date][mem.id] || {b: 0, l: 0, d: 0};
+                let dailyTotal = m.b + m.l + m.d;
+                
+                let inputClass = "w-full sm:w-16 text-center border border-slate-200 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-base font-bold outline-none focus:ring-2 focus:ring-amber-400 transition";
+                let bInput = state.isAdmin ? `<input type="number" id="m_${mem.id}_b" value="${m.b}" min="0" max="5" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.b}</span>`;
+                let lInput = state.isAdmin ? `<input type="number" id="m_${mem.id}_l" value="${m.l}" min="0" max="5" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.l}</span>`;
+                let dInput = state.isAdmin ? `<input type="number" id="m_${mem.id}_d" value="${m.d}" min="0" max="5" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.d}</span>`;
+
+                return `
+                <div class="flex flex-col sm:grid sm:grid-cols-12 sm:gap-4 p-4 sm:items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition duration-200">
+                    <div class="col-span-3 flex justify-between items-center sm:block mb-4 sm:mb-0">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 text-base">${mem.name}</span>
+                        <span class="sm:hidden font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded text-[11px] border border-indigo-100 dark:border-indigo-800">মোট: ${dailyTotal}</span>
+                    </div>
+                    
+                    <div class="col-span-6 grid grid-cols-3 gap-3 w-full sm:flex sm:justify-around sm:px-4">
+                        <div class="flex flex-col sm:flex-row sm:justify-center items-center bg-slate-50 dark:bg-slate-700/30 sm:bg-transparent sm:dark:bg-transparent rounded-xl p-2 sm:p-0 border border-slate-100 dark:border-slate-700 sm:border-none">
+                            <span class="text-[10px] font-bold text-slate-500 mb-2 sm:hidden"><i class="fa-solid fa-mug-hot text-amber-500"></i> সকাল</span>
+                            <div class="w-full sm:w-auto flex justify-center">${bInput}</div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:justify-center items-center bg-slate-50 dark:bg-slate-700/30 sm:bg-transparent sm:dark:bg-transparent rounded-xl p-2 sm:p-0 border border-slate-100 dark:border-slate-700 sm:border-none">
+                            <span class="text-[10px] font-bold text-slate-500 mb-2 sm:hidden"><i class="fa-solid fa-bowl-rice text-indigo-500"></i> দুপুর</span>
+                            <div class="w-full sm:w-auto flex justify-center">${lInput}</div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:justify-center items-center bg-slate-50 dark:bg-slate-700/30 sm:bg-transparent sm:dark:bg-transparent rounded-xl p-2 sm:p-0 border border-slate-100 dark:border-slate-700 sm:border-none">
+                            <span class="text-[10px] font-bold text-slate-500 mb-2 sm:hidden"><i class="fa-solid fa-moon text-blue-500"></i> রাত</span>
+                            <div class="w-full sm:w-auto flex justify-center">${dInput}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-3 hidden sm:block text-right font-black text-xl text-indigo-600 dark:text-indigo-400 pr-2">
+                        ${dailyTotal}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function saveMealsForDate() {
+            const date = document.getElementById('mealDateFilter').value;
+            if(!date) return alert("তারিখ নির্বাচন করুন!");
+            if(!state.meals[date]) state.meals[date] = {};
+            state.members.forEach(mem => {
+                const b = parseFloat(document.getElementById(`m_${mem.id}_b`).value) || 0;
+                const l = parseFloat(document.getElementById(`m_${mem.id}_l`).value) || 0;
+                const d = parseFloat(document.getElementById(`m_${mem.id}_d`).value) || 0;
+                state.meals[date][mem.id] = {b, l, d};
+            });
+            saveToFirebase();
+            openNotice("সফল মেসেজ", `${date} তারিখের মিল সুন্দরভাবে সংরক্ষণ করা হয়েছে!`, true);
+        }
+
+        function saveMealRate() {
+            state.mealRate = parseFloat(document.getElementById('mealRateInput').value) || 0;
+            saveToFirebase();
+            openNotice("আপডেট সফল", "মিলের রেট আপডেট করা হয়েছে!", true);
+        }
+
+        function saveExpense(e) {
+            e.preventDefault();
+            const date = document.getElementById('exDate').value;
+            const category = document.getElementById('exCategory').value;
+            const title = document.getElementById('exTitle').value;
+            const amount = parseFloat(document.getElementById('exAmount').value);
+            state.expenses.push({ id: Date.now(), date, category, title, amount });
+            saveToFirebase(); closeModal('expenseModal'); e.target.reset();
+        }
+
+        function saveMemberAction(e) {
+            e.preventDefault();
+            const id = document.getElementById('editMemberId').value;
+            const name = document.getElementById('memName').value.trim();
+            const photo = document.getElementById('memPhoto').value.trim();
+            const action = document.getElementById('memActionType').value;
+            const amount = parseFloat(document.getElementById('memAmount').value) || 0;
+
+            if(id) { 
+                let m = state.members.find(x => x.id === id);
+                if(m) {
+                    m.name = name; m.photo = photo;
+                    if(action === 'deposit') m.deposit += amount;
+                    else if(action === 'withdraw') m.deposit -= amount;
+                }
+            } else { 
+                state.members.push({ id: Date.now().toString(), name, photo, deposit: amount });
+            }
+            saveToFirebase(); closeModal('memberModal'); e.target.reset();
+            document.getElementById('editMemberId').value = "";
+        }
+
+        function editMember(id) {
+            let m = state.members.find(x => x.id === id);
+            if(m) {
+                document.getElementById('editMemberId').value = m.id;
+                document.getElementById('memName').value = m.name;
+                document.getElementById('memPhoto').value = m.photo || "";
+                document.getElementById('memActionType').value = "deposit";
+                document.getElementById('memAmount').value = 0;
+                document.getElementById('memberModalTitle').innerHTML = `<i class="fa-solid fa-pen"></i> সদস্য এডিট`;
+                openModal('memberModal');
+            }
+        }
+
+        function deleteMember(id) {
+            if(confirm("আপনি কি নিশ্চিত এই সদস্যকে ডিলিট করতে চান? তার সকল ফান্ড এবং হিসাব মুছে যাবে!")) {
+                state.members = state.members.filter(m => m.id !== id);
+                for(let date in state.meals) { delete state.meals[date][id]; }
+                saveToFirebase();
+            }
+        }
+
+        function updateSettings(key, inputId) {
+            state.settings[key] = document.getElementById(inputId).value.trim();
+            saveToFirebase();
+            if(key === 'notification') {
+                document.getElementById(inputId).value = "";
+                openNotice("নোটিশ আপডেট", "নতুন নোটিশ সফলভাবে জারি করা হয়েছে!", true);
+            } else {
+                openNotice("আপডেট সফল", "সেটিংস সফলভাবে আপডেট হয়েছে!", true);
+            }
+        }
+
+        // --- NEW MODAL BASED NOTIFICATION ---
+        function viewNotification() {
+            if(state.settings.notification && state.settings.notification.trim() !== "") {
+                openNotice("মেস নোটিশ বোর্ড", state.settings.notification, false);
+            } else {
+                openNotice("মেস নোটিশ বোর্ড", "বর্তমানে কোনো নতুন নোটিশ নেই।", false);
+            }
+        }
+
+        function openNotice(title, message, isSuccess) {
+            let box = document.getElementById('noticeContentText');
+            if(isSuccess) {
+                box.className = "bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-5 text-sm sm:text-base font-bold text-green-700 dark:text-green-400 text-center";
+            } else {
+                box.className = "bg-amber-50 dark:bg-slate-700/50 border border-amber-100 dark:border-slate-600 rounded-2xl p-5 text-sm sm:text-base font-medium text-slate-700 dark:text-slate-200 text-center leading-relaxed";
+            }
+            document.querySelector('#noticeModal h3').innerText = title;
+            box.innerText = message;
+            openModal('noticeModal');
+        }
+
+        function clearAllData() {
+            if(prompt("সতর্কতা: সব মুছে যাবে! নিশ্চিত হতে 'confirm' লিখুন:") === 'confirm') {
+                state.expenses = []; state.members = []; state.meals = {}; state.mealRate = 0;
+                saveToFirebase();
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden'); 
+            if(id === 'memberModal') { 
+                document.getElementById('editMemberId').value = ""; 
+                document.getElementById('memberModalTitle').innerHTML = `<i class="fa-solid fa-user-plus"></i> ফান্ড এন্ট্রি`;
+            }
+        }
+
+        function getCatBangla(c) { const m = { Market: '🛒 বাজার', Wifi: '🌐 ওয়াইফাই', Electricity: '⚡ বিদ্যুৎ', Others: '📦 অন্যান্য' }; return m[c]||c; }
+        function getCatBadgeClass(c) { const m = { Market: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', Wifi: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800', Electricity: 'bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', Others: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600' }; return m[c]||''; }
+        function formatDate(d) { return new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }); }
+    </script>
+</body>
+</html>
