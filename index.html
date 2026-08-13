@@ -80,8 +80,8 @@
                     <i id="themeIcon" class="fa-solid fa-moon text-sm sm:text-lg"></i>
                 </button>
 
-                <!-- Beautiful Notification Button -->
-                <button onclick="openModal('noticeModal')" class="relative p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300 flex items-center justify-center">
+                <!-- Beautiful Notification Button (Fixed to call viewNotification) -->
+                <button onclick="viewNotification()" class="relative p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300 flex items-center justify-center">
                     <i class="fa-solid fa-bell text-sm sm:text-lg"></i>
                     <span id="bellIndicator" class="hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800 animate-pulse"></span>
                 </button>
@@ -187,7 +187,7 @@
             </div>
         </div>
 
-        <!-- ================= EXPENSES PAGE (MOBILE CARD LAYOUT) ================= -->
+        <!-- ================= EXPENSES PAGE ================= -->
         <div id="page-expenses" class="page-content hidden space-y-3 sm:space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-base sm:text-lg font-bold"><i class="fa-solid fa-receipt text-red-500 mr-2"></i>বাজার ও অন্যান্য খরচ</h2>
@@ -204,7 +204,6 @@
                     <div>বিবরণ</div>
                     <div class="text-right">টাকা</div>
                 </div>
-                <!-- Body Array Injection -->
                 <div id="expenseTableBody" class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700"></div>
                 <div id="emptyExpense" class="hidden p-12 text-center text-slate-400">
                     <i class="fa-solid fa-box-open text-4xl mb-3 text-slate-300"></i>
@@ -213,7 +212,7 @@
             </div>
         </div>
 
-        <!-- ================= MEMBERS PAGE (MOBILE CARD LAYOUT) ================= -->
+        <!-- ================= MEMBERS PAGE ================= -->
         <div id="page-members" class="page-content hidden space-y-3 sm:space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-base sm:text-lg font-bold"><i class="fa-solid fa-users-viewfinder text-emerald-500 mr-2"></i>সদস্য ও ফান্ড লিস্ট</h2>
@@ -230,7 +229,6 @@
                     <div class="col-span-3 text-right">অবস্থা</div>
                     <div class="col-span-1 text-center admin-only hidden">অ্যাকশন</div>
                 </div>
-                <!-- Body Array Injection -->
                 <div id="memberTableBody" class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700"></div>
                 <div id="emptyMember" class="hidden p-12 text-center text-slate-400">
                     <i class="fa-solid fa-user-slash text-4xl mb-3 text-slate-300"></i>
@@ -260,9 +258,8 @@
                     <div class="col-span-2"><i class="fa-solid fa-mug-hot text-amber-500 mr-1"></i> সকাল</div>
                     <div class="col-span-2"><i class="fa-solid fa-bowl-rice text-indigo-500 mr-1"></i> দুপুর</div>
                     <div class="col-span-2"><i class="fa-solid fa-moon text-blue-500 mr-1"></i> রাত</div>
-                    <div class="col-span-3 text-right">মোট</div>
+                    <div class="col-span-3 text-right">সর্বমোট মিল</div>
                 </div>
-                <!-- Body Array Injection -->
                 <div id="mealTableBody" class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700"></div>
                 <div class="p-4 sm:p-5 text-right admin-only hidden border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
                     <button onclick="saveMealsForDate()" class="w-full sm:w-auto bg-green-600 text-white px-6 py-3 sm:py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-green-700 transition">এই তারিখের মিল সেভ করুন</button>
@@ -335,35 +332,37 @@
     </div>
 
     <!-- Modals (Add Expense) -->
-    <div id="expenseModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="expenseModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-animate border border-slate-100 dark:border-slate-700">
-            <div class="bg-red-500 text-white p-4 flex justify-between items-center sticky top-0 z-10">
+            <div class="bg-red-500 text-white p-3.5 sm:p-4 flex justify-between items-center sticky top-0 z-10">
                 <h3 class="font-bold text-sm sm:text-base flex items-center gap-2"><i class="fa-solid fa-cart-plus"></i> নতুন খরচ যোগ</h3>
                 <button onclick="closeModal('expenseModal')" class="text-white hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form onsubmit="saveExpense(event)" class="p-5 space-y-4">
+            <form onsubmit="saveExpense(event)" class="p-4 sm:p-5 space-y-3 sm:space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">তারিখ</label>
-                    <input type="date" id="exDate" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-400 uppercase mb-1.5">তারিখ</label>
+                    <input type="date" id="exDate" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-2.5 sm:p-3 text-sm outline-none focus:ring-2 focus:ring-red-400">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">খাত (ক্যাটাগরি)</label>
-                    <select id="exCategory" class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-400 uppercase mb-1.5">খাত (ক্যাটাগরি)</label>
+                    <select id="exCategory" class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-2.5 sm:p-3 text-sm outline-none focus:ring-2 focus:ring-red-400">
                         <option value="Market">🛒 বাজার খরচ</option>
+                        <option value="Rent">🏠 বাড়ি ভাড়া</option>
+                        <option value="Maid">🧹 বুয়া বিল</option>
                         <option value="Wifi">🌐 ওয়াইফাই বিল</option>
                         <option value="Electricity">⚡ বিদ্যুৎ বিল</option>
                         <option value="Others">📦 অন্যান্য</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">বিস্তারিত বিবরণ</label>
-                    <input type="text" id="exTitle" placeholder="কীসের খরচ?" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none focus:ring-2 focus:ring-red-400">
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-400 uppercase mb-1.5">বিস্তারিত বিবরণ</label>
+                    <input type="text" id="exTitle" placeholder="কীসের খরচ?" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-2.5 sm:p-3 text-sm outline-none focus:ring-2 focus:ring-red-400">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">পরিমাণ (৳)</label>
-                    <input type="number" id="exAmount" placeholder="0" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-3 sm:p-3.5 text-sm outline-none font-bold text-lg focus:ring-2 focus:ring-red-400">
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-400 uppercase mb-1.5">পরিমাণ (৳)</label>
+                    <input type="number" id="exAmount" placeholder="0" required class="w-full border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl p-2.5 sm:p-3 text-sm outline-none font-bold text-lg focus:ring-2 focus:ring-red-400">
                 </div>
-                <button type="submit" class="w-full bg-red-500 text-white font-bold py-3.5 rounded-xl hover:shadow-lg mt-2 text-sm transition">সেভ করুন</button>
+                <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 sm:py-3.5 rounded-xl hover:shadow-lg mt-2 text-sm transition">সেভ করুন</button>
             </form>
         </div>
     </div>
@@ -422,7 +421,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const LOGOUT_PASSWORD = "123"; 
+        const LOGOUT_PASSWORD = "kawser233"; 
 
         let state = {
             isAdmin: false,
@@ -477,17 +476,14 @@
             });
         }
 
-        // --- NEW MODAL BASED LOGIN LOGIC ---
         function handleAuthClick() {
             if(state.isAdmin) {
-                // Logout Action
                 state.isAdmin = false;
                 document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock text-xs"></i> <span>লগইন</span>';
                 document.getElementById('adminBtn').classList.replace('bg-rose-600', 'bg-indigo-600');
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-                updateUI(); // refresh visuals
+                updateUI(); 
             } else {
-                // Open Login Modal
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginErrorMsg').classList.add('hidden');
                 openModal('loginModal');
@@ -502,7 +498,7 @@
                 document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock-open text-xs"></i> <span>লগআউট</span>';
                 document.getElementById('adminBtn').classList.replace('bg-indigo-600', 'bg-rose-600');
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-                updateUI(); // refresh visuals
+                updateUI();
             } else {
                 document.getElementById('loginErrorMsg').classList.remove('hidden');
             }
@@ -580,7 +576,7 @@
             renderMealTable();
         }
 
-        // --- MEMBER LIST RENDER (MOBILE NO-SCROLL CARDS) ---
+        // --- MEMBER LIST RENDER ---
         function renderMembers(totalExp, perHead) {
             const memBody = document.getElementById('memberTableBody');
             if(state.members.length === 0) {
@@ -631,6 +627,7 @@
             }
         }
 
+        // Calculate Grand Total of meals for a member across all dates
         function calculateTotalMeals(memberId) {
             let sum = 0;
             for(let date in state.meals) {
@@ -641,7 +638,32 @@
             return sum;
         }
 
-        // --- MEAL LIST RENDER (MOBILE NO-SCROLL CARDS) ---
+        // Real-time recalculation preview when an admin changes a meal input before saving
+        function recalcMeal(id) {
+            let b = parseFloat(document.getElementById('m_'+id+'_b').value) || 0;
+            let l = parseFloat(document.getElementById('m_'+id+'_l').value) || 0;
+            let d = parseFloat(document.getElementById('m_'+id+'_d').value) || 0;
+            
+            let currentDate = document.getElementById('mealDateFilter').value;
+            let baseTotal = 0;
+            
+            // Add up meals from all other days EXCEPT the current filter date
+            for(let date in state.meals) {
+                if(date !== currentDate && state.meals[date][id]) {
+                    baseTotal += (state.meals[date][id].b || 0) + (state.meals[date][id].l || 0) + (state.meals[date][id].d || 0);
+                }
+            }
+            
+            let newGrandTotal = baseTotal + b + l + d;
+            
+            // Update the display text dynamically
+            let dtElement = document.getElementById('dt_'+id);
+            let mtElement = document.getElementById('mt_'+id);
+            if(dtElement) dtElement.innerText = newGrandTotal;
+            if(mtElement) mtElement.innerText = newGrandTotal;
+        }
+
+        // --- MEAL LIST RENDER ---
         function renderMealTable() {
             const date = document.getElementById('mealDateFilter').value;
             const tbody = document.getElementById('mealTableBody');
@@ -650,18 +672,18 @@
             
             tbody.innerHTML = state.members.map(mem => {
                 let m = state.meals[date][mem.id] || {b: 0, l: 0, d: 0};
-                let dailyTotal = m.b + m.l + m.d;
+                let grandTotal = calculateTotalMeals(mem.id);
                 
                 let inputClass = "w-full sm:w-16 text-center border border-slate-200 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-800 text-base font-bold outline-none focus:ring-2 focus:ring-amber-400 transition";
-                let bInput = state.isAdmin ? `<input type="number" id="m_${mem.id}_b" value="${m.b}" min="0" max="5" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.b}</span>`;
-                let lInput = state.isAdmin ? `<input type="number" id="m_${mem.id}_l" value="${m.l}" min="0" max="5" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.l}</span>`;
-                let dInput = state.isAdmin ? `<input type="number" id="m_${mem.id}_d" value="${m.d}" min="0" max="5" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.d}</span>`;
+                let bInput = state.isAdmin ? `<input type="number" step="0.5" id="m_${mem.id}_b" value="${m.b}" min="0" oninput="recalcMeal('${mem.id}')" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.b}</span>`;
+                let lInput = state.isAdmin ? `<input type="number" step="0.5" id="m_${mem.id}_l" value="${m.l}" min="0" oninput="recalcMeal('${mem.id}')" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.l}</span>`;
+                let dInput = state.isAdmin ? `<input type="number" step="0.5" id="m_${mem.id}_d" value="${m.d}" min="0" oninput="recalcMeal('${mem.id}')" class="${inputClass}">` : `<span class="font-black text-lg text-slate-800 dark:text-slate-200">${m.d}</span>`;
 
                 return `
                 <div class="flex flex-col sm:grid sm:grid-cols-12 sm:gap-4 p-4 sm:items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition duration-200">
                     <div class="col-span-3 flex justify-between items-center sm:block mb-4 sm:mb-0">
                         <span class="font-bold text-slate-800 dark:text-slate-200 text-base">${mem.name}</span>
-                        <span class="sm:hidden font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded text-[11px] border border-indigo-100 dark:border-indigo-800">মোট: ${dailyTotal}</span>
+                        <span class="sm:hidden font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded text-[11px] border border-indigo-100 dark:border-indigo-800">সর্বমোট: <span id="mt_${mem.id}">${grandTotal}</span></span>
                     </div>
                     
                     <div class="col-span-6 grid grid-cols-3 gap-3 w-full sm:flex sm:justify-around sm:px-4">
@@ -679,8 +701,8 @@
                         </div>
                     </div>
 
-                    <div class="col-span-3 hidden sm:block text-right font-black text-xl text-indigo-600 dark:text-indigo-400 pr-2">
-                        ${dailyTotal}
+                    <div class="col-span-3 hidden sm:block text-right font-black text-xl text-indigo-600 dark:text-indigo-400 pr-2" id="dt_${mem.id}">
+                        ${grandTotal}
                     </div>
                 </div>`;
             }).join('');
@@ -770,7 +792,6 @@
             }
         }
 
-        // --- NEW MODAL BASED NOTIFICATION ---
         function viewNotification() {
             if(state.settings.notification && state.settings.notification.trim() !== "") {
                 openNotice("মেস নোটিশ বোর্ড", state.settings.notification, false);
@@ -807,8 +828,18 @@
             }
         }
 
-        function getCatBangla(c) { const m = { Market: '🛒 বাজার', Wifi: '🌐 ওয়াইফাই', Electricity: '⚡ বিদ্যুৎ', Others: '📦 অন্যান্য' }; return m[c]||c; }
-        function getCatBadgeClass(c) { const m = { Market: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', Wifi: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800', Electricity: 'bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', Others: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600' }; return m[c]||''; }
+        // Updated Categories
+        function getCatBangla(c) { const m = { Market: '🛒 বাজার', Rent: '🏠 বাড়ি ভাড়া', Maid: '🧹 বুয়া বিল', Wifi: '🌐 ওয়াইফাই', Electricity: '⚡ বিদ্যুৎ', Others: '📦 অন্যান্য' }; return m[c]||c; }
+        function getCatBadgeClass(c) { 
+            const m = { 
+                Market: 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800', 
+                Rent: 'bg-pink-50 text-pink-600 border-pink-200 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-800',
+                Maid: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800',
+                Wifi: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-400 dark:border-cyan-800', 
+                Electricity: 'bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', 
+                Others: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600' 
+            }; return m[c]||''; 
+        }
         function formatDate(d) { return new Date(d).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }); }
     </script>
 </body>
